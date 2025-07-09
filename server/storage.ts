@@ -41,90 +41,155 @@ export interface IStorage {
 export class DatabaseStorage implements IStorage {
   // User operations
   async getUser(id: string): Promise<User | undefined> {
-    const [user] = await db.select().from(users).where(eq(users.id, id));
-    return user;
+    try {
+      const [user] = await db.select().from(users).where(eq(users.id, id));
+      return user;
+    } catch (error) {
+      console.error('Error getting user:', error);
+      throw error;
+    }
   }
 
   async upsertUser(userData: UpsertUser): Promise<User> {
-    const [user] = await db
-      .insert(users)
-      .values(userData)
-      .onConflictDoUpdate({
-        target: users.id,
-        set: {
-          ...userData,
-          updatedAt: new Date(),
-        },
-      })
-      .returning();
-    return user;
+    try {
+      const [user] = await db
+        .insert(users)
+        .values(userData)
+        .onConflictDoUpdate({
+          target: users.id,
+          set: {
+            ...userData,
+            updatedAt: new Date(),
+          },
+        })
+        .returning();
+      return user;
+    } catch (error) {
+      console.error('Error upserting user:', error);
+      throw error;
+    }
   }
 
   // Video analysis operations
   async createVideoAnalysis(analysis: InsertVideoAnalysis): Promise<VideoAnalysis> {
-    const [result] = await db.insert(videoAnalyses).values(analysis).returning();
-    return result;
+    try {
+      const [result] = await db.insert(videoAnalyses).values(analysis).returning();
+      return result;
+    } catch (error) {
+      console.error('Error creating video analysis:', error);
+      throw error;
+    }
   }
 
   async getVideoAnalysis(id: number): Promise<VideoAnalysis | undefined> {
-    const [analysis] = await db.select().from(videoAnalyses).where(eq(videoAnalyses.id, id));
-    return analysis;
+    try {
+      const [analysis] = await db.select().from(videoAnalyses).where(eq(videoAnalyses.id, id));
+      return analysis;
+    } catch (error) {
+      console.error('Error getting video analysis:', error);
+      throw error;
+    }
   }
 
   async getUserVideoAnalyses(userId: string): Promise<VideoAnalysis[]> {
-    return await db
-      .select()
-      .from(videoAnalyses)
-      .where(eq(videoAnalyses.userId, userId))
-      .orderBy(desc(videoAnalyses.createdAt));
+    try {
+      return await db
+        .select()
+        .from(videoAnalyses)
+        .where(eq(videoAnalyses.userId, userId))
+        .orderBy(desc(videoAnalyses.createdAt));
+    } catch (error) {
+      console.error('Error getting user video analyses:', error);
+      throw error;
+    }
   }
 
   async updateVideoAnalysis(id: number, updates: Partial<VideoAnalysis>): Promise<VideoAnalysis> {
-    const [result] = await db
-      .update(videoAnalyses)
-      .set({ ...updates, updatedAt: new Date() })
-      .where(eq(videoAnalyses.id, id))
-      .returning();
-    return result;
+    try {
+      const [result] = await db
+        .update(videoAnalyses)
+        .set({ ...updates, updatedAt: new Date() })
+        .where(eq(videoAnalyses.id, id))
+        .returning();
+      return result;
+    } catch (error) {
+      console.error('Error updating video analysis:', error);
+      throw error;
+    }
   }
 
   async deleteVideoAnalysis(id: number): Promise<void> {
-    await db.delete(videoAnalyses).where(eq(videoAnalyses.id, id));
+    try {
+      await db.delete(videoAnalyses).where(eq(videoAnalyses.id, id));
+    } catch (error) {
+      console.error('Error deleting video analysis:', error);
+      throw error;
+    }
   }
 
   // Key frame operations
   async createKeyFrame(keyFrame: InsertKeyFrame): Promise<KeyFrame> {
-    const [result] = await db.insert(keyFrames).values(keyFrame).returning();
-    return result;
+    try {
+      const [result] = await db.insert(keyFrames).values(keyFrame).returning();
+      return result;
+    } catch (error) {
+      console.error('Error creating key frame:', error);
+      throw error;
+    }
   }
 
   async getKeyFramesByAnalysis(analysisId: number): Promise<KeyFrame[]> {
-    return await db
-      .select()
-      .from(keyFrames)
-      .where(eq(keyFrames.analysisId, analysisId))
-      .orderBy(keyFrames.timestamp);
+    try {
+      return await db
+        .select()
+        .from(keyFrames)
+        .where(eq(keyFrames.analysisId, analysisId))
+        .orderBy(keyFrames.timestamp);
+    } catch (error) {
+      console.error('Error getting key frames:', error);
+      throw error;
+    }
   }
 
   async deleteKeyFramesByAnalysis(analysisId: number): Promise<void> {
-    await db.delete(keyFrames).where(eq(keyFrames.analysisId, analysisId));
+    try {
+      await db.delete(keyFrames).where(eq(keyFrames.analysisId, analysisId));
+    } catch (error) {
+      console.error('Error deleting key frames:', error);
+      throw error;
+    }
   }
 
   // Analysis metadata operations
   async createAnalysisMetadata(metadata: InsertAnalysisMetadata): Promise<AnalysisMetadata> {
-    const [result] = await db.insert(analysisMetadata).values(metadata).returning();
-    return result;
+    try {
+      const [result] = await db.insert(analysisMetadata).values(metadata).returning();
+      return result;
+    } catch (error) {
+      console.error('Error creating analysis metadata:', error);
+      throw error;
+    }
   }
 
   async getAnalysisMetadata(analysisId: number): Promise<AnalysisMetadata[]> {
-    return await db
-      .select()
-      .from(analysisMetadata)
-      .where(eq(analysisMetadata.analysisId, analysisId));
+    try {
+      return await db
+        .select()
+        .from(analysisMetadata)
+        .where(eq(analysisMetadata.analysisId, analysisId));
+    } catch (error) {
+      console.error('Error getting analysis metadata:', error);
+      throw error;
+    }
   }
 
   async deleteAnalysisMetadata(analysisId: number): Promise<void> {
-    await db.delete(analysisMetadata).where(eq(analysisMetadata.analysisId, analysisId));
+    try {
+      await db.delete(analysisMetadata).where(eq(analysisMetadata.analysisId, analysisId));
+    } catch (error) {
+      console.error('Error deleting analysis metadata:', error);
+      throw error;
+    }
   }
 }
 
