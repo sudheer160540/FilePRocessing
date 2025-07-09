@@ -74,6 +74,18 @@ export const analysisMetadata = pgTable("analysis_metadata", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// Audio transcription table
+export const audioTranscriptions = pgTable("audio_transcriptions", {
+  id: serial("id").primaryKey(),
+  analysisId: integer("analysis_id").references(() => videoAnalyses.id).notNull(),
+  transcriptionText: text("transcription_text").notNull(),
+  duration: integer("duration"), // in seconds
+  language: text("language"),
+  confidence: integer("confidence"), // 0-100
+  audioPath: text("audio_path"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 // Schema types
 export type UpsertUser = typeof users.$inferInsert;
 export type User = typeof users.$inferSelect;
@@ -86,6 +98,9 @@ export type KeyFrame = typeof keyFrames.$inferSelect;
 
 export type InsertAnalysisMetadata = typeof analysisMetadata.$inferInsert;
 export type AnalysisMetadata = typeof analysisMetadata.$inferSelect;
+
+export type InsertAudioTranscription = typeof audioTranscriptions.$inferInsert;
+export type AudioTranscription = typeof audioTranscriptions.$inferSelect;
 
 // Insert schemas
 export const insertVideoAnalysisSchema = createInsertSchema(videoAnalyses).omit({
@@ -100,6 +115,11 @@ export const insertKeyFrameSchema = createInsertSchema(keyFrames).omit({
 });
 
 export const insertAnalysisMetadataSchema = createInsertSchema(analysisMetadata).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertAudioTranscriptionSchema = createInsertSchema(audioTranscriptions).omit({
   id: true,
   createdAt: true,
 });

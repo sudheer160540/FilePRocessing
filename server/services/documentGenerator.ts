@@ -11,6 +11,7 @@ export async function generateReport(analysisId: number): Promise<string> {
 
     const keyFrames = await storage.getKeyFramesByAnalysis(analysisId);
     const metadata = await storage.getAnalysisMetadata(analysisId);
+    const audioTranscription = await storage.getAudioTranscription(analysisId);
 
     // Create reports directory
     const reportsDir = path.join("reports");
@@ -23,7 +24,7 @@ export async function generateReport(analysisId: number): Promise<string> {
     // Generate Word document using a simple approach
     // Note: In a real implementation, you would use a proper Word generation library
     // For now, we'll create a rich text document with HTML-like structure
-    const reportContent = generateReportContent(analysis, keyFrames, metadata);
+    const reportContent = generateReportContent(analysis, keyFrames, metadata, audioTranscription);
     
     // Save as HTML file (can be opened by Word)
     const htmlReportPath = path.join(reportsDir, `analysis_${analysisId}_report.html`);
@@ -39,7 +40,7 @@ export async function generateReport(analysisId: number): Promise<string> {
   }
 }
 
-function generateReportContent(analysis: any, keyFrames: any[], metadata: any[]): string {
+function generateReportContent(analysis: any, keyFrames: any[], metadata: any[], audioTranscription: any = null): string {
   const formatTime = (seconds: number): string => {
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = seconds % 60;

@@ -3,6 +3,7 @@ import {
   videoAnalyses,
   keyFrames,
   analysisMetadata,
+  audioTranscriptions,
   type User,
   type UpsertUser,
   type VideoAnalysis,
@@ -11,6 +12,8 @@ import {
   type InsertKeyFrame,
   type AnalysisMetadata,
   type InsertAnalysisMetadata,
+  type AudioTranscription,
+  type InsertAudioTranscription,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and } from "drizzle-orm";
@@ -36,6 +39,11 @@ export interface IStorage {
   createAnalysisMetadata(metadata: InsertAnalysisMetadata): Promise<AnalysisMetadata>;
   getAnalysisMetadata(analysisId: number): Promise<AnalysisMetadata[]>;
   deleteAnalysisMetadata(analysisId: number): Promise<void>;
+
+  // Audio transcription operations
+  createAudioTranscription(transcription: InsertAudioTranscription): Promise<AudioTranscription>;
+  getAudioTranscription(analysisId: number): Promise<AudioTranscription | undefined>;
+  deleteAudioTranscription(analysisId: number): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -188,6 +196,39 @@ export class DatabaseStorage implements IStorage {
       await db.delete(analysisMetadata).where(eq(analysisMetadata.analysisId, analysisId));
     } catch (error) {
       console.error('Error deleting analysis metadata:', error);
+      throw error;
+    }
+  }
+
+  // Audio transcription operations
+  async createAudioTranscription(transcription: InsertAudioTranscription): Promise<AudioTranscription> {
+    try {
+      const [result] = await db.insert(audioTranscriptions).values(transcription).returning();
+      return result;
+    } catch (error) {
+      console.error('Error creating audio transcription:', error);
+      throw error;
+    }
+  }
+
+  async getAudioTranscription(analysisId: number): Promise<AudioTranscription | undefined> {
+    try {
+      const [transcription] = await db
+        .select()
+        .from(audioTranscriptions)
+        .where(eq(audioTranscriptions.analysisId, analysisId));
+      return transcription;
+    } catch (error) {
+      console.error('Error getting audio transcription:', error);
+      throw error;
+    }
+  }
+
+  async deleteAudioTranscription(analysisId: number): Promise<void> {
+    try {
+      await db.delete(audioTranscriptions).where(eq(audioTranscriptions.analysisId, analysisId));
+    } catch (error) {
+      console.error('Error deleting audio transcription:', error);
       throw error;
     }
   }

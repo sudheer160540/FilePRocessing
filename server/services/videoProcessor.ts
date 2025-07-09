@@ -1,5 +1,6 @@
 import { spawn } from "child_process";
 import { storage } from "../storage";
+import { transcribeVideoAudio } from "./audioTranscription";
 import path from "path";
 import fs from "fs";
 
@@ -39,6 +40,9 @@ export async function processVideo(analysisId: number, videoPath: string): Promi
         description: frame.description,
       });
     }
+
+    // Transcribe audio from video
+    await transcribeVideoAudio(analysisId, videoPath);
 
     // Store additional metadata
     await storage.createAnalysisMetadata({
